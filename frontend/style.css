@@ -1,0 +1,193 @@
+/*
+NVIDIA GDX Spak Cluster Dashboard.
+Provides a similar interface like btop but browser based
+
+Author:  Paul Aviles
+Created: 02-06-2026
+Version: 0.2.0
+License: CC-BY-NC-ND-4.0 Creative Commons Attribution Non Commercial No Derivatives 4.0 International
+See License.txt
+*/
+
+body {
+    background: #0b0f14;
+    color: #7CFC00;
+    font-family: monospace;
+    margin: 0;
+    padding: 0;
+}
+h1 {
+    text-align: center;
+    padding: 1px;
+    margin-bottom: 1px;   /* reduce space below the title */
+    margin-top: 1px;      /* optional: reduce space above too */
+}
+.node {
+    background: #0f1115;
+    border: 1px solid #1f2937;
+    padding: 12px;
+    border-radius: 8px;
+}
+.node b {
+    font-size: 1.1em;
+}
+
+.bar-container {
+    background: #1f2937;
+    height: 10px;               /* lower disk bars – overridden for disks */
+    border-radius: 4px;
+    margin: 2px 0;
+    overflow: hidden;
+}
+.bar-fill {
+    height: 100%;
+    background: linear-gradient(to right, #22c55e,#16a34a);   /* green gradient */
+}
+
+/* CPU bars (light-blue → red) – used for per core and overall CPU  */
+.bar-container.cpu {
+    height: 12px;
+    margin: 2px 0;
+}
+.bar-fill.cpu {
+    height: 100%;
+    background: linear-gradient(
+        to right,
+        #e0f7ff 0%,
+        #90c9ff 60%,
+        #ff7043 90%,
+        #ff0000 100%
+    );
+}
+
+/* Memory bars (transparent white → solid white) */
+.bar-container.memory {
+    height: 12px;
+    margin: 4px 0;
+}
+.bar-fill.memory {
+    height: 100%;
+    background: linear-gradient(
+        to right,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,1) 100%
+    );
+}
+
+/* GPU bars (yellow → red) */
+.bar-container.gpu {
+    height: 12px;
+    margin: 2px 0;
+}
+.bar-fill.gpu {
+    height: 100%;
+    background: linear-gradient(
+        to right,
+        #fff9c4 0%,
+        #ffeb3b 60%,
+        #ff7043 90%,
+        #ff0000 100%
+    );
+}
+
+/* Disk bars – blue gradient */
+.bar-container.disk {
+    background: #1f2937;
+    height: 10px;               /* hmm... lets try... height as generic disk bars */
+    border-radius: 4px;
+    margin: 2px 0;
+    overflow: hidden;
+}
+.bar-fill.disk {
+    height: 100%;
+    background: linear-gradient(
+        to right,
+        #3b82f6 0%,
+        #1e40af 100%
+    );
+}
+
+/* Sparklines */
+.sparkline {
+    width: 100%;
+    height: 5px;
+    margin: 1px 0;
+}
+
+/* Layout for two node columns */
+#dashboard {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    flex-wrap: wrap;
+}
+.column {
+    flex: 1;
+    min-width: 300px;
+}
+
+/* Sub columns for the CPU cores */
+.cpu-subcol {
+    flex: 1;
+}
+
+/* Force NETWORK and DISK to align */
+.node .netifs,
+.node .disks {
+    display: block;
+    width: 100%;
+}
+
+.node .netifs > div,
+.node .disks > div {
+    width: 100%;
+}
+
+/* Bar containers full width */
+.node .bar-container {
+    width: 100%;
+}
+
+/* Sparklines full line, headers align left */
+.spark {
+    display: block;
+}
+
+/* Ensure headers are full-width blocks */
+.node u {
+    display: block;
+    text-align: left;
+}
+
+/* Phantom "bar" above network.. is it still needed? */
+/* Sparklines separated */
+.spark {
+    display: block;
+    margin-bottom: 5px;   /* space AFTER sparkline */
+}
+
+/* Headers breathing room */
+.node u {
+    display: block;
+    margin-top: 5px;     /* space BEFORE section header */
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+/* Headers section breaks */
+.node u::after {
+    content: "";
+    display: block;
+    height: 1px;
+    background: #1f2937;  /* subtle divider line */
+    margin-top: 4px;
+}
+
+/* Footer */
+#page-footer {
+    text-align: center;
+    color: #9ca3af;        /* subtle gray */
+    font-size: 12px;
+    margin-top: 5px;
+    padding: 5px 0;
+}

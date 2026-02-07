@@ -1,0 +1,21 @@
+#NVIDIA GDX Spak Cluster Dashboard.
+#Provides a similar interface like btop but browser based
+#
+#Author:  Paul Aviles
+#Created: 02-06-2026
+#Version: 0.2.0
+#License: CC-BY-NC-ND-4.0 Creative Commons Attribution Non Commercial No Derivatives 4.0 International
+#See License.txt
+# config.yaml
+# Dictionary with a top-level "nodes" key 
+
+nodes:
+  - name: Smarty67
+    host: 10.5.39.67
+    username: sysadmin
+    key_path: /home/sysadmin/.ssh/id_rsa
+
+  - name: Smarty69
+    host: 10.5.39.69
+    username: sysadmin
+    key_path: /home/sysadmin/.ssh/id_rsa
