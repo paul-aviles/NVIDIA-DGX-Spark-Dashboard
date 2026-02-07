@@ -12,9 +12,7 @@ It streams live metrics over WebSockets, pulls data via SSH from each
 node, and renders CPU, memory, GPU, disk, and network stats with
 sparklines and usage bars.
 
-> Author: Paul Aviles\
-> Version: 0.2.0\
-> License: CC-BY-NC-ND-4.0
+License: CC-BY-NC-ND-4.0
 
 ------------------------------------------------------------------------
 
@@ -33,7 +31,7 @@ sparklines and usage bars.
 
 ## 🏗️ Architecture Overview
 
-    +-------------------+        WebSocket        +------------------------+
+    +-------------------+        WebSocket       +------------------------+
     |   Web Browser     | <--------------------> |  FastAPI Backend       |
     |  (index.html,     |                        |  server.py             |
     |   main.js, css)   |                        |                        |
@@ -65,11 +63,11 @@ The simple backend does four main things:
     -   Disk I/O (`/proc/diskstats`)
     -   Network counters (`/sys/class/net/*/statistics`)
     -   IP address of `enP7s7`
-	-   IP address `enp1s0f0np0, enp1s0f1np1` Hidden if not used.
+	-   IP address `enp1s0f0np0, enp1s0f1np1` (Hidden if not used)
 4.  Streams JSON payloads to the browser over a WebSocket (`/ws`) every
     second.
 
-Run **one batched** command per refresh to minimize SSH overhead and latency.
+Runs **one batched** command per refresh to minimize SSH overhead and latency.
 
 ### Frontend (Vanilla JS)
 
@@ -88,7 +86,7 @@ single main.js for simplicity served by FastAPI:
 
 ## 🔁 Data Flow
 
-1.  Browser connects to `ws://host:8000/ws`
+1.  Backend connects to `ws://host:8000/ws`
 2.  Backend loop:
     -   For each node:
         -   Connect over SSH
@@ -138,8 +136,11 @@ pip install -r backend/requirements.txt
 On the monitoring host generate your public/private key pair.
 Example below for user 'sysadmin'.
 
-```ssh-keygen -t rsa -f ~/.ssh/id_rsa_gdx_dashboard```
+```
+ssh-keygen -t rsa -f ~/.ssh/id_rsa_gdx_dashboard
+```
 
+```
 Generating public/private rsa key pair.
 Enter passphrase (empty for no passphrase):
 Enter same passphrase again:
@@ -156,16 +157,20 @@ The key's randomart image is:
 |    || || ||    |
 |       ||       |
 +-----[SHA256]----+
-
+```
 ### 2. Copy key to each node
 
-```ssh-copy-id -i ~/.ssh/id_rsa_gdx_dashboard.pub sysadmin@<IP of GDX Spark node>```
+```
+ssh-copy-id -i ~/.ssh/id_rsa_gdx_dashboard.pub sysadmin@<IP of GDX Spark node>
+```
 
-```INFO: Source of key(s) to be installed: "/home/sysadmin/.ssh/id_rsa_gdx_dashboard.pub"
+```
+INFO: Source of key(s) to be installed: "/home/sysadmin/.ssh/id_rsa_gdx_dashboard.pub"
 INFO: attempting to log in with the new key(s), to filter out any that are already installed
 INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
 
-Number of key(s) added: 1```
+Number of key(s) added: 1
+```
 
 Now try logging into the machine, with:   "ssh 'sysadmin@<IP of GDX Spark node>'"
 and check to make sure that only the key(s) you wanted were added.
@@ -175,9 +180,10 @@ and check to make sure that only the key(s) you wanted were added.
 Let's make sure the SSH passwordless connection is working first!. From
 the monitoring host run:
 
-```ssh -i ~/.ssh/id_rsa_gdx_dashboard sysadmin@<IP of GDX Spark node>```
+```
+ssh -i ~/.ssh/id_rsa_gdx_dashboard sysadmin@<IP of GDX Spark node>
 
-```Welcome to NVIDIA DGX Spark Version 7.4.0 (GNU/Linux 6.14.0-1015-nvidia aarch64)
+Welcome to NVIDIA DGX Spark Version 7.4.0 (GNU/Linux 6.14.0-1015-nvidia aarch64)
 
  System information as of Sat Feb  7 12:15:59 PM EST 2026
 
@@ -185,10 +191,13 @@ the monitoring host run:
   Usage of /:   29.1% of 3.67TB   Processes:               513
   Memory usage: 46%               Users logged in:         0
   Swap usage:   2%                IPv4 address for enP7s7: 10.5.39.67
-Last login: Sat Feb  7 12:14:15 2026 from monitoring.cisconian.net```
+Last login: Sat Feb  7 12:14:15 2026 from monitoring.cisconian.net
+```
 
 It is working, so lets exit to go back.
-```exit```
+```
+exit
+```
 
 ### 5. Create `backend/config.yaml`
 
@@ -214,10 +223,29 @@ nodes:
 
 ## ▶️ Running
 
-Run the server. It runs on port 8000, but you can select a different one. 
+Server runs on port 8000, but it can be changed. After activating the 
+environment with: 
+```
+source .venv/bin/activate
+```
 
 ``` bash
 uvicorn server:app --host 0.0.0.0 --port 8000
+INFO:     Started server process [646972]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     10.5.37.24:62432 - "GET / HTTP/1.1" 200 OK
+INFO:     10.5.37.24:62432 - "GET /favicon.ico HTTP/1.1" 200 OK
+INFO:     10.5.37.24:58063 - "WebSocket /ws" [accepted]
+INFO:     connection open
+INFO:     10.5.37.24:57319 - "GET /ws HTTP/1.1" 200 OK
+INFO:     connection closed
+INFO:     10.5.37.24:57319 - "GET /favicon.ico HTTP/1.1" 200 OK
+WebSocket client disconnected
+INFO:     10.5.37.24:57319 - "GET /favicon.ico HTTP/1.1" 200 OK
+INFO:     10.5.37.24:57857 - "WebSocket /ws" [accepted]
+INFO:     connection open
 ```
 
 Open your browser and navigate to:
@@ -231,7 +259,8 @@ Open your browser and navigate to:
 > Real-time view of multiple NVIDIA GDX Spark nodes, showing CPU,
 > memory, GPU, disk, and network activity with historical sparklines.
 
-![NVIDIA GDX Spark Dashboard Screenshot](screenshot.png)
+![NVIDIA GDX Spark Dashboard CPU Usage](media/screenshot0.png)
+![NVIDIA GDX Spark Dashboard GPU Usage](media/screenshot1.png)
 
 ------------------------------------------------------------------------
 
@@ -246,11 +275,11 @@ scaling over two nodes primarily.
 -   Threshold-based alerts (temp, memory, disk, CPU)
 -   Configurable refresh interval
 -   Historical time ranges (5 min, 1 hour, 24 hours)
--   Optional metrics persistence (SQLite, Influx, Prometheus exporter)
+-   Optional metrics persistence (SQLite)
 -   Pluggable collectors (enable/disable modules)
+-   Collapsible sections
 -   Cluster-wide aggregate views
 -   Authentication and access control
--   Optional push-based agents
 -   Integration with SIEM (Splunk, ELK, Graylog)
 
 ------------------------------------------------------------------------
@@ -258,4 +287,5 @@ scaling over two nodes primarily.
 ## 📜 License
 
 CC-BY-NC-ND-4.0\
-Attribution required. Non-commercial. No derivatives.
+Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International
+
