@@ -199,7 +199,7 @@ It is working, so lets exit to go back.
 exit
 ```
 
-### 5. Create `backend/config.yaml`
+### 4. Create `backend/config.yaml`
 
 Create the configuration for each of the two nodes. Change the username, IP address
 and ssh key name accordingly.
