@@ -1,5 +1,5 @@
 """
-NVIDIA GDX Spak Cluster Dashboard.
+NVIDIA DGX Spak Cluster Dashboard.
 Provides a similar interface like btop but browser based
 
 Author:  Paul Aviles

@@ -1,11 +1,11 @@
-# NVIDIA GDX Spark Cluster Dashboard
+# NVIDIA DGX Spark Cluster Dashboard
 
 This is a lightweight, real-time, browser-based monitoring dashboard
-for **two** NVIDIA GDX Spark nodes. Inspired by **btop/htop** and
+for **two** NVIDIA DGX Spark nodes. Inspired by **btop/htop** and
 accessible from any browser. It is not for a single unit, if so,
 use btop instead.
 
-It does not run directly on the GDX Sparks, instead run in another
+It does not run directly on the DGX Sparks, instead run in another
 host monitoring two sparks over passwordless SSH connection.
 
 It streams live metrics over WebSockets, pulls data via SSH from each
@@ -43,7 +43,7 @@ License: CC-BY-NC-ND-4.0
                                                              | SSH (keys)
                                                              v
                                                   +-----------------------+
-                                                  |  2 GDX Spark Nodes    |
+                                                  |  2 DGX Spark Nodes    |
                                                   |  /proc, nvidia-smi,   |
                                                   |  sysfs, df, ip, etc.  |
                                                   +-----------------------+
@@ -137,15 +137,15 @@ On the monitoring host generate your public/private key pair.
 Example below for user 'sysadmin'.
 
 ```
-ssh-keygen -t rsa -f ~/.ssh/id_rsa_gdx_dashboard
+ssh-keygen -t rsa -f ~/.ssh/id_rsa_DGX_dashboard
 ```
 
 ```
 Generating public/private rsa key pair.
 Enter passphrase (empty for no passphrase):
 Enter same passphrase again:
-Your identification has been saved in /home/sysadmin/.ssh/id_rsa_gdx_dashboard
-Your public key has been saved in /home/sysadmin/.ssh/id_rsa_gdx_dashboard.pub
+Your identification has been saved in /home/sysadmin/.ssh/id_rsa_DGX_dashboard
+Your public key has been saved in /home/sysadmin/.ssh/id_rsa_DGX_dashboard.pub
 The key fingerprint is:
 SHA256:blablabla/g sysadmin@monitoring.cisconian.net
 The key's randomart image is:
@@ -161,18 +161,18 @@ The key's randomart image is:
 ### 2. Copy key to each node
 
 ```
-ssh-copy-id -i ~/.ssh/id_rsa_gdx_dashboard.pub sysadmin@<IP of GDX Spark node>
+ssh-copy-id -i ~/.ssh/id_rsa_DGX_dashboard.pub sysadmin@<IP of DGX Spark node>
 ```
 
 ```
-INFO: Source of key(s) to be installed: "/home/sysadmin/.ssh/id_rsa_gdx_dashboard.pub"
+INFO: Source of key(s) to be installed: "/home/sysadmin/.ssh/id_rsa_DGX_dashboard.pub"
 INFO: attempting to log in with the new key(s), to filter out any that are already installed
 INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
 
 Number of key(s) added: 1
 ```
 
-Now try logging into the machine, with:   "ssh 'sysadmin@<IP of GDX Spark node>'"
+Now try logging into the machine, with:   "ssh 'sysadmin@<IP of DGX Spark node>'"
 and check to make sure that only the key(s) you wanted were added.
 
 ### 3. Test SSH passwordless connection
@@ -181,7 +181,7 @@ Let's make sure the SSH passwordless connection is working first!. From
 the monitoring host run:
 
 ```
-ssh -i ~/.ssh/id_rsa_gdx_dashboard sysadmin@<IP of GDX Spark node>
+ssh -i ~/.ssh/id_rsa_DGX_dashboard sysadmin@<IP of DGX Spark node>
 
 Welcome to NVIDIA DGX Spark Version 7.4.0 (GNU/Linux 6.14.0-1015-nvidia aarch64)
 
@@ -210,13 +210,13 @@ nodes:
     host: 10.5.39.67
     port: 22
     username: sysadmin
-    key_path: /home/sysadmin/.ssh/id_rsa_gdx_dashboard
+    key_path: /home/sysadmin/.ssh/id_rsa_DGX_dashboard
 
   - name: Smarty69
     host: 10.5.39.69
     port: 22
     username: sysadmin
-    key_path: /home/sysadmin/.ssh/id_rsa_gdx_dashboard
+    key_path: /home/sysadmin/.ssh/id_rsa_DGX_dashboard
 ```
 
 ------------------------------------------------------------------------
@@ -256,11 +256,11 @@ Open your browser and navigate to:
 
 ## 🖼️ Screenshots
 
-> Real-time view of multiple NVIDIA GDX Spark nodes, showing CPU,
+> Real-time view of multiple NVIDIA DGX Spark nodes, showing CPU,
 > memory, GPU, disk, and network activity with historical sparklines.
 
-![NVIDIA GDX Spark Dashboard CPU Usage](media/screenshot0.png)
-![NVIDIA GDX Spark Dashboard GPU Usage](media/screenshot1.png)
+![NVIDIA DGX Spark Dashboard CPU Usage](media/screenshot0.png)
+![NVIDIA DGX Spark Dashboard GPU Usage](media/screenshot1.png)
 
 ------------------------------------------------------------------------
 
