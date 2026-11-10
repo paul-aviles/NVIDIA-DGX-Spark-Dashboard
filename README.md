@@ -1,12 +1,12 @@
 # NVIDIA DGX Spark Cluster Dashboard
 
 This is a lightweight, real-time, browser-based monitoring dashboard
-for **two** NVIDIA DGX Spark nodes. Inspired by **btop/htop** and
+for NVIDIA DGX Spark nodes. Inspired by **btop/htop** and
 accessible from any browser. It is not for a single unit, if so,
 use btop instead.
 
 It does not run directly on the DGX Sparks, instead run in another
-host monitoring two sparks over passwordless SSH connection.
+host monitoring sparks over passwordless SSH connection.
 
 It streams live metrics over WebSockets, pulls data via SSH from each
 node, and renders CPU, memory, GPU, disk, and network stats with
@@ -80,7 +80,7 @@ single main.js for simplicity served by FastAPI:
     -   Renders usage bars (CPU, memory, GPU, disks, network)
     -   Maintains history buffers (up to 180 samples) for sparklines
     -   Draws sparklines on `<canvas>`
--   Automatically lays out nodes in two columns
+-   Automatically lays out nodes in columns
 
 ------------------------------------------------------------------------
 
@@ -201,7 +201,7 @@ exit
 
 ### 4. Create `backend/config.yaml`
 
-Create the configuration for each of the two nodes. Change the username, IP address
+Create the configuration for each of the nodes. Change the username, IP address
 and ssh key name accordingly.
 
 ``` yaml
@@ -266,10 +266,8 @@ Open your browser and navigate to:
 
 ## 🛣️ Roadmap
 
-There are several improvements that can be done including code cleanup and 
-scaling over two nodes primarily. 
+There are several improvements that can be done including code cleanup: 
 
--   More than 2 nodes on the same dashboard
 -   Multi-GPU support per node
 -   Per-process GPU usage (via `nvidia-smi pmon` or compute apps query)
 -   Threshold-based alerts (temp, memory, disk, CPU)
