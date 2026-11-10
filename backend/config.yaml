@@ -19,3 +19,9 @@ nodes:
     host: 10.5.39.69
     username: sysadmin
     key_path: /home/sysadmin/.ssh/id_rsa
+
+  - name: Smarty71
+    host: 10.5.39.71
+    username: sysadmin
+    key_path: /home/sysadmin/.ssh/id_rsa
+

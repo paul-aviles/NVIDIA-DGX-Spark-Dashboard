@@ -1,5 +1,5 @@
 /*
-NVIDIA GDX Spak Cluster Dashboard.
+NVIDIA DGX Spak Cluster Dashboard.
 Provides a similar interface like btop but browser based
 
 Author:  Paul Aviles
@@ -46,7 +46,7 @@ function createNodeCard(n) {
 
 function renderBar(container, label, pct, type) {
     container.innerHTML = `
-        <div>${label}: ${pct}%</div>
+        <div>${label}11: ${pct}%</div>
         <div class="bar-container ${type}">
             <div class="bar-fill ${type}" style="width:${pct}%"></div>
         </div>
@@ -90,32 +90,21 @@ function drawSpark(canvas, values, color) {
     ctx.stroke();
 }
 
-const ws = new WebSocket(`ws://${location.host}/ws`);
+// Use ws:// for HTTP and wss:// for HTTPS.
+const wsProtocol = location.protocol === "https:" ? "wss:" : "ws:";
+const ws = new WebSocket(`${wsProtocol}//${location.host}/ws`);
 
 ws.onmessage = e => {
     const nodes = JSON.parse(e.data);
 
-    nodes.forEach((n, idx) => {
+    nodes.forEach(n => {
         if (!nodesMap[n.node]) {
             const card = createNodeCard(n);
 
-            let col;
-            if (idx % 2 === 0) {
-                col = document.querySelector(".column.left");
-                if (!col) {
-                    col = document.createElement("div");
-                    col.className = "column left";
-                    dashboard.appendChild(col);
-                }
-            } else {
-                col = document.querySelector(".column.right");
-                if (!col) {
-                    col = document.createElement("div");
-                    col.className = "column right";
-                    dashboard.appendChild(col);
-                }
-            }
-            col.appendChild(card);
+            // Add every node directly to the dashboard grid.
+            // No left/right column assignment: all configured nodes
+            // participate in the same responsive layout.
+            dashboard.appendChild(card);
 
             nodesMap[n.node] = card;
             history[n.node] = { cpu: [], mem: [], gpu: [], disks: {} };
@@ -219,4 +208,12 @@ ws.onmessage = e => {
             drawSpark(spark, history[n.node].disks[d.mount], "#06b6d4");
         });
     });
+};
+
+ws.onerror = error => {
+    console.error("Dashboard WebSocket error:", error);
+};
+
+ws.onclose = () => {
+    console.warn("Dashboard WebSocket connection closed.");
 };

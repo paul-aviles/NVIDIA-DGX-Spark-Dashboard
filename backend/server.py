@@ -64,8 +64,8 @@ CPU_CACHE: Dict[str, Dict[str, Any]] = {}
 PREV_NET: Dict[str, Dict[str, Any]] = {}
 PREV_DISK_IO: Dict[str, Dict[str, Any]] = {}
 
-INTERFACES = ["enP7s7", "enp1s0f0np0", "enp1s0f1np1"]
-
+#INTERFACES = ["enP7s7", "enp1s0f0np0", "enp1s0f1np1"]
+INTERFACES = ["enP7s7", "enp1s0f0np0", "enp1s0f1np1", "enP2p1s0f0np0", "enP2p1s0f1np1"]
  
 # Helpers
  
