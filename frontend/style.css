@@ -4,7 +4,7 @@ Provides a similar interface like btop but browser based
 
 Author:  Paul Aviles
 Created: 02-06-2026
-Version: 0.2.0
+Version: 0.2.6
 License: CC-BY-NC-ND-4.0 Creative Commons Attribution Non Commercial No Derivatives 4.0 International
 See License.txt
 */
@@ -16,46 +16,39 @@ body {
     margin: 0;
     padding: 0;
 }
-
 h1 {
     text-align: center;
     padding: 1px;
-    margin-bottom: 1px;
-    margin-top: 1px;
+    margin-bottom: 1px;   /* reduce space below the title */
+    margin-top: 1px;      /* optional: reduce space above too */
 }
-
 .node {
     background: #0f1115;
     border: 1px solid #1f2937;
     padding: 12px;
     border-radius: 8px;
-    min-width: 0;
-    box-sizing: border-box;
 }
-
 .node b {
     font-size: 1.1em;
 }
 
 .bar-container {
     background: #1f2937;
-    height: 10px;
+    height: 10px;               /* lower disk bars – overridden for disks */
     border-radius: 4px;
     margin: 2px 0;
     overflow: hidden;
 }
-
 .bar-fill {
     height: 100%;
-    background: linear-gradient(to right, #22c55e,#16a34a);
+    background: linear-gradient(to right, #22c55e,#16a34a);   /* green gradient */
 }
 
-/* CPU bars (light-blue → red) */
+/* CPU bars (light-blue → red) – used for per core and overall CPU  */
 .bar-container.cpu {
     height: 12px;
     margin: 2px 0;
 }
-
 .bar-fill.cpu {
     height: 100%;
     background: linear-gradient(
@@ -67,12 +60,11 @@ h1 {
     );
 }
 
-/* Memory bars */
+/* Memory bars (transparent white → solid white) */
 .bar-container.memory {
     height: 12px;
     margin: 4px 0;
 }
-
 .bar-fill.memory {
     height: 100%;
     background: linear-gradient(
@@ -82,12 +74,11 @@ h1 {
     );
 }
 
-/* GPU bars */
+/* GPU bars (yellow → red) */
 .bar-container.gpu {
     height: 12px;
     margin: 2px 0;
 }
-
 .bar-fill.gpu {
     height: 100%;
     background: linear-gradient(
@@ -99,15 +90,14 @@ h1 {
     );
 }
 
-/* Disk bars */
+/* Disk bars – blue gradient */
 .bar-container.disk {
     background: #1f2937;
-    height: 10px;
+    height: 10px;               /* hmm... lets try... height as generic disk bars */
     border-radius: 4px;
     margin: 2px 0;
     overflow: hidden;
 }
-
 .bar-fill.disk {
     height: 100%;
     background: linear-gradient(
@@ -117,22 +107,36 @@ h1 {
     );
 }
 
-/* Three-node dashboard grid */
+/* Sparklines */
+.sparkline {
+    width: 100%;
+    height: 5px;
+    margin: 1px 0;
+}
+
+/* Dynamic node layout. main.js sets --node-columns from config.yaml
+   via the WebSocket payload, capped at four columns. */
 #dashboard {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(var(--node-columns, 1), minmax(0, 1fr));
     gap: 12px;
     padding: 12px;
     align-items: start;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-/* CPU sub-columns inside each node card */
+.node {
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* Sub columns for the CPU cores */
 .cpu-subcol {
     flex: 1;
-    min-width: 0;
 }
 
-/* Network and disk sections */
+/* Force NETWORK and DISK to align */
 .node .netifs,
 .node .disks {
     display: block;
@@ -147,53 +151,87 @@ h1 {
 /* Bar containers full width */
 .node .bar-container {
     width: 100%;
-    box-sizing: border-box;
 }
 
-/* Sparklines */
-.spark,
-.sparkline {
+/* Sparklines full line, headers align left */
+.spark {
     display: block;
-    width: 100%;
-    height: 40px;
-    margin: 1px 0 5px;
 }
 
-/* Section headers */
+/* Ensure headers are full-width blocks */
 .node u {
     display: block;
-    margin-top: 5px;
+    text-align: left;
+}
+
+/* Phantom "bar" above network.. is it still needed? */
+/* Sparklines separated */
+.spark {
+    display: block;
+    margin-bottom: 5px;   /* space AFTER sparkline */
+}
+
+/* Headers breathing room */
+.node u {
+    display: block;
+    margin-top: 5px;     /* space BEFORE section header */
     margin-bottom: 5px;
     text-align: left;
 }
 
+/* Headers section breaks */
 .node u::after {
     content: "";
     display: block;
     height: 1px;
-    background: #1f2937;
+    background: #1f2937;  /* subtle divider line */
     margin-top: 4px;
 }
 
 /* Footer */
 #page-footer {
     text-align: center;
-    color: #9ca3af;
+    color: #9ca3af;        /* subtle gray */
     font-size: 12px;
     margin-top: 5px;
     padding: 5px 0;
 }
 
-/* Two columns on medium screens */
-@media (max-width: 1100px) {
-    #dashboard {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+/* =========================================================
+   RDMA SECTION — v0.2.3
+   Keep RDMA aligned with NETWORK and DISK sections.
+   ========================================================= */
+
+.node .rdma {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
 }
 
-/* One column on narrow screens */
-@media (max-width: 700px) {
-    #dashboard {
-        grid-template-columns: minmax(0, 1fr);
-    }
+.node .rdma > div {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+}
+
+.node .rdma > div + div {
+    margin-bottom: 8px;
+}
+
+/* Keep long HCA and interface names from expanding node cards */
+.node .rdma,
+.node .rdma > div {
+    word-break: break-word;
+}
+
+/* Keep NETWORK, RDMA and DISK sections consistent */
+.node .netifs,
+.node .rdma,
+.node .disks {
+    width: 100%;
+    max-width: 100%;
 }

@@ -1,18 +1,20 @@
 # NVIDIA DGX Spark Cluster Dashboard
 
 This is a lightweight, real-time, browser-based monitoring dashboard
-for **two** NVIDIA DGX Spark nodes. Inspired by **btop/htop** and
+for NVIDIA DGX Spark nodes. Inspired by **btop/htop** and
 accessible from any browser. It is not for a single unit, if so,
 use btop instead.
 
 It does not run directly on the DGX Sparks, instead run in another
-host monitoring two sparks over passwordless SSH connection.
+host monitoring the sparks over passwordless SSH connection.
 
 It streams live metrics over WebSockets, pulls data via SSH from each
 node, and renders CPU, memory, GPU, disk, and network stats with
 sparklines and usage bars.
 
-License: CC-BY-NC-ND-4.0
+> Author: Paul Aviles\
+> Version: 0.2.6\
+> License: CC-BY-NC-ND-4.0
 
 ------------------------------------------------------------------------
 
@@ -31,7 +33,7 @@ License: CC-BY-NC-ND-4.0
 
 ## 🏗️ Architecture Overview
 
-    +-------------------+        WebSocket       +------------------------+
+    +-------------------+        WebSocket        +------------------------+
     |   Web Browser     | <--------------------> |  FastAPI Backend       |
     |  (index.html,     |                        |  server.py             |
     |   main.js, css)   |                        |                        |
@@ -43,7 +45,7 @@ License: CC-BY-NC-ND-4.0
                                                              | SSH (keys)
                                                              v
                                                   +-----------------------+
-                                                  |  2 DGX Spark Nodes    |
+                                                  |    DGX Spark Nodes    |
                                                   |  /proc, nvidia-smi,   |
                                                   |  sysfs, df, ip, etc.  |
                                                   +-----------------------+
@@ -63,11 +65,11 @@ The simple backend does four main things:
     -   Disk I/O (`/proc/diskstats`)
     -   Network counters (`/sys/class/net/*/statistics`)
     -   IP address of `enP7s7`
-	-   IP address `enp1s0f0np0, enp1s0f1np1` (Hidden if not used)
+	-   IP address `enp1s0f0np0, enp1s0f1np1` Hidden if not used.
 4.  Streams JSON payloads to the browser over a WebSocket (`/ws`) every
     second.
 
-Runs **one batched** command per refresh to minimize SSH overhead and latency.
+Run **one batched** command per refresh to minimize SSH overhead and latency.
 
 ### Frontend (Vanilla JS)
 
@@ -80,13 +82,13 @@ single main.js for simplicity served by FastAPI:
     -   Renders usage bars (CPU, memory, GPU, disks, network)
     -   Maintains history buffers (up to 180 samples) for sparklines
     -   Draws sparklines on `<canvas>`
--   Automatically lays out nodes in two columns
+-   Automatically lays out nodes in columns
 
 ------------------------------------------------------------------------
 
 ## 🔁 Data Flow
 
-1.  Backend connects to `ws://host:8000/ws`
+1.  Browser connects to `ws://host:8000/ws`
 2.  Backend loop:
     -   For each node:
         -   Connect over SSH
@@ -136,16 +138,13 @@ pip install -r backend/requirements.txt
 On the monitoring host generate your public/private key pair.
 Example below for user 'sysadmin'.
 
-```
-ssh-keygen -t rsa -f ~/.ssh/id_rsa_DGX_dashboard
-```
+```ssh-keygen -t rsa -f ~/.ssh/id_rsa_gdx_dashboard```
 
-```
 Generating public/private rsa key pair.
 Enter passphrase (empty for no passphrase):
 Enter same passphrase again:
-Your identification has been saved in /home/sysadmin/.ssh/id_rsa_DGX_dashboard
-Your public key has been saved in /home/sysadmin/.ssh/id_rsa_DGX_dashboard.pub
+Your identification has been saved in /home/sysadmin/.ssh/id_rsa_gdx_dashboard
+Your public key has been saved in /home/sysadmin/.ssh/id_rsa_gdx_dashboard.pub
 The key fingerprint is:
 SHA256:blablabla/g sysadmin@monitoring.cisconian.net
 The key's randomart image is:
@@ -157,20 +156,16 @@ The key's randomart image is:
 |    || || ||    |
 |       ||       |
 +-----[SHA256]----+
-```
+
 ### 2. Copy key to each node
 
-```
-ssh-copy-id -i ~/.ssh/id_rsa_DGX_dashboard.pub sysadmin@<IP of DGX Spark node>
-```
+```ssh-copy-id -i ~/.ssh/id_rsa_gdx_dashboard.pub sysadmin@<IP of DGX Spark node>```
 
-```
-INFO: Source of key(s) to be installed: "/home/sysadmin/.ssh/id_rsa_DGX_dashboard.pub"
+```INFO: Source of key(s) to be installed: "/home/sysadmin/.ssh/id_rsa_gdx_dashboard.pub"
 INFO: attempting to log in with the new key(s), to filter out any that are already installed
 INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
 
-Number of key(s) added: 1
-```
+Number of key(s) added: 1```
 
 Now try logging into the machine, with:   "ssh 'sysadmin@<IP of DGX Spark node>'"
 and check to make sure that only the key(s) you wanted were added.
@@ -180,10 +175,9 @@ and check to make sure that only the key(s) you wanted were added.
 Let's make sure the SSH passwordless connection is working first!. From
 the monitoring host run:
 
-```
-ssh -i ~/.ssh/id_rsa_DGX_dashboard sysadmin@<IP of DGX Spark node>
+```ssh -i ~/.ssh/id_rsa_gdx_dashboard sysadmin@<IP of DGX Spark node>```
 
-Welcome to NVIDIA DGX Spark Version 7.4.0 (GNU/Linux 6.14.0-1015-nvidia aarch64)
+```Welcome to NVIDIA DGX Spark Version 7.4.0 (GNU/Linux 6.14.0-1015-nvidia aarch64)
 
  System information as of Sat Feb  7 12:15:59 PM EST 2026
 
@@ -191,17 +185,14 @@ Welcome to NVIDIA DGX Spark Version 7.4.0 (GNU/Linux 6.14.0-1015-nvidia aarch64)
   Usage of /:   29.1% of 3.67TB   Processes:               513
   Memory usage: 46%               Users logged in:         0
   Swap usage:   2%                IPv4 address for enP7s7: 10.5.39.67
-Last login: Sat Feb  7 12:14:15 2026 from monitoring.cisconian.net
-```
+Last login: Sat Feb  7 12:14:15 2026 from monitoring.cisconian.net```
 
 It is working, so lets exit to go back.
-```
-exit
-```
+```exit```
 
-### 4. Create `backend/config.yaml`
+### 5. Create `backend/config.yaml`
 
-Create the configuration for each of the two nodes. Change the username, IP address
+Create the configuration for a node or multiple nodes. Change the username, IP address
 and ssh key name accordingly.
 
 ``` yaml
@@ -210,42 +201,29 @@ nodes:
     host: 10.5.39.67
     port: 22
     username: sysadmin
-    key_path: /home/sysadmin/.ssh/id_rsa_DGX_dashboard
+    key_path: /home/sysadmin/.ssh/id_rsa_gdx_dashboard
 
   - name: Smarty69
     host: 10.5.39.69
     port: 22
     username: sysadmin
-    key_path: /home/sysadmin/.ssh/id_rsa_DGX_dashboard
+    key_path: /home/sysadmin/.ssh/id_rsa_gdx_dashboard
+	
+  - name: Smarty71
+    host: 10.5.39.71
+    port: 22
+    username: sysadmin
+    key_path: /home/sysadmin/.ssh/id_rsa_gdx_dashboard	
 ```
 
 ------------------------------------------------------------------------
 
 ## ▶️ Running
 
-Server runs on port 8000, but it can be changed. After activating the 
-environment with: 
-```
-source .venv/bin/activate
-```
+Run the server. It runs on port 8000, but you can select a different one. 
 
 ``` bash
 uvicorn server:app --host 0.0.0.0 --port 8000
-INFO:     Started server process [646972]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     10.5.37.24:62432 - "GET / HTTP/1.1" 200 OK
-INFO:     10.5.37.24:62432 - "GET /favicon.ico HTTP/1.1" 200 OK
-INFO:     10.5.37.24:58063 - "WebSocket /ws" [accepted]
-INFO:     connection open
-INFO:     10.5.37.24:57319 - "GET /ws HTTP/1.1" 200 OK
-INFO:     connection closed
-INFO:     10.5.37.24:57319 - "GET /favicon.ico HTTP/1.1" 200 OK
-WebSocket client disconnected
-INFO:     10.5.37.24:57319 - "GET /favicon.ico HTTP/1.1" 200 OK
-INFO:     10.5.37.24:57857 - "WebSocket /ws" [accepted]
-INFO:     connection open
 ```
 
 Open your browser and navigate to:
@@ -259,27 +237,24 @@ Open your browser and navigate to:
 > Real-time view of multiple NVIDIA DGX Spark nodes, showing CPU,
 > memory, GPU, disk, and network activity with historical sparklines.
 
-![NVIDIA DGX Spark Dashboard CPU Usage](media/screenshot0.png)
-![NVIDIA DGX Spark Dashboard GPU Usage](media/screenshot1.png)
+![NVIDIA DGX Spark Dashboard Screenshot](screenshot.png)
 
 ------------------------------------------------------------------------
 
 ## 🛣️ Roadmap
 
-There are several improvements that can be done including code cleanup and 
-scaling over two nodes primarily. 
+There are several improvements that can be done including code cleanup. 
 
--   More than 2 nodes on the same dashboard
 -   Multi-GPU support per node
 -   Per-process GPU usage (via `nvidia-smi pmon` or compute apps query)
 -   Threshold-based alerts (temp, memory, disk, CPU)
 -   Configurable refresh interval
 -   Historical time ranges (5 min, 1 hour, 24 hours)
--   Optional metrics persistence (SQLite)
+-   Optional metrics persistence (SQLite, Influx, Prometheus exporter)
 -   Pluggable collectors (enable/disable modules)
--   Collapsible sections
 -   Cluster-wide aggregate views
 -   Authentication and access control
+-   Optional push-based agents
 -   Integration with SIEM (Splunk, ELK, Graylog)
 
 ------------------------------------------------------------------------
@@ -287,5 +262,4 @@ scaling over two nodes primarily.
 ## 📜 License
 
 CC-BY-NC-ND-4.0\
-Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International
-
+Attribution required. Non-commercial. No derivatives.

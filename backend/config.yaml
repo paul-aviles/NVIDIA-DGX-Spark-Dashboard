@@ -3,7 +3,7 @@
 #
 #Author:  Paul Aviles
 #Created: 02-06-2026
-#Version: 0.2.0
+#Version: 0.2.6
 #License: CC-BY-NC-ND-4.0 Creative Commons Attribution Non Commercial No Derivatives 4.0 International
 #See License.txt
 # config.yaml
@@ -24,4 +24,3 @@ nodes:
     host: 10.5.39.71
     username: sysadmin
     key_path: /home/sysadmin/.ssh/id_rsa
-
