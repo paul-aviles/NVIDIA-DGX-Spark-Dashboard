@@ -237,7 +237,7 @@ Open your browser and navigate to:
 > Real-time view of multiple NVIDIA DGX Spark nodes, showing CPU,
 > memory, GPU, disk, and network activity with historical sparklines.
 
-![NVIDIA DGX Spark Dashboard Screenshot](screenshot.png)
+![NVIDIA DGX Spark Dashboard Screenshot](/media/screenshot0.png)
 
 ------------------------------------------------------------------------
 
