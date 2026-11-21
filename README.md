@@ -123,10 +123,76 @@ limited by SSH latency and network conditions.
 There are minimal installation requirements. Perform the following steps
 on the monitoring hosts:
 
+Install under /opt
+```
+cd /
+cd opt
+git clone https://github.com/paul-aviles/NVIDIA-DGX-Spark-Dashboard
+cd NVIDIA-DGX-Spark-Dashboard
+```
+Edit the /backend/config.yaml file and adjust to match your hosts maintaining for each:
+
+	name: <hostname>
+	host: <ip>
+    username: <username>
+    key_path: /home/sysadmin/.ssh/id_rsa
+
+Manually run to install the python dependencies:
 ``` 
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r backend/requirements.txt
+```
+
+Create a systemctl file under /etc/systemd/system/spark-dashboard
+```
+[Unit]
+Description=NVIDIA DGX Spark Dashboard
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=sysadmin
+Group=sysadmin
+WorkingDirectory=/opt/NVIDIA-DGX-Spark-Dashboard
+
+Environment="PYTHONUNBUFFERED=1"
+Environment="PYTHONFAULTHANDLER=1"
+
+# Use the venv's python/uvicorn directly (no "source activate" needed)
+ExecStart=/opt/NVIDIA-DGX-Spark-Dashboard/.venv/bin/python -m uvicorn backend.server:app --host 0.0.0.0 --port 8000 --log-level info --access-log
+
+Restart=always
+RestartSec=5
+
+StandardOutput=append:/var/log/NVIDIA-DGX-Spark-Dashboard/dgx.log
+StandardError=append:/var/log/NVIDIA-DGX-Spark-Dashboard/dgx.log
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Create the directory and assign permissions:
+```
+sudo mkdir -p /var/log/NVIDIA-DGX-Spark-Dashboard
+sudo touch /var/log/NVIDIA-DGX-Spark-Dashboard/dgx.log
+sudo chown -R sysadmin:sysadmin /var/log/NVIDIA-DGX-Spark-Dashboard
+sudo chmod 755 /var/log/NVIDIA-DGX-Spark-Dashboard
+sudo chmod 644 /var/log/NVIDIA-DGX-Spark-Dashboard/dgx.log
+```
+
+Reload and restart:
+```
+sudo systemctl daemon-reload
+sudo systemctl start spark-dashboard.service
+sudo systemctl enable spark-dashboard.service
+sudo systemctl status spark-dashboard.service
+```
+
+Validate the application:
+```
+tail -f /var/log/NVIDIA-DGX-Spark-Dashboard/dgx.log
 ```
 
 ------------------------------------------------------------------------
@@ -221,6 +287,8 @@ nodes:
 ## ▶️ Running
 
 Run the server. It runs on port 8000, but you can select a different one. 
+
+**Note:** the systemctl must not be running or you will attempt to listen on port 8000 twice. 
 
 ``` bash
 uvicorn server:app --host 0.0.0.0 --port 8000
