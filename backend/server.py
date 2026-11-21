@@ -352,6 +352,19 @@ async def collect(node: dict) -> dict:
             "rx_counter": rcv_data, "tx_counter": xmit_data,
         })
 
+        # Exclude RDMA-backed NICs from the regular NETWORK section.
+        # Mappings are discovered dynamically through rdma link show.
+        rdma_netdevs = {
+            port["netdev"]
+            for port in rdma
+            if port.get("netdev") and port["netdev"] != "unknown"
+        }
+
+        netifs = [
+            iface for iface in netifs
+            if iface["name"] not in rdma_netdevs
+        ]
+
     return {"node": node["name"], "primary_ip": primary_ip, "ip_enp7s7": primary_ip, "load": load, "mem": mem,
             "cpu": percents, "disks": disks, "netifs": netifs, "rdma": rdma, "gpu_util": util,
             "gpu_mem_used": mem_used, "gpu_mem_total": mem_total, "gpu_temp": temp,
